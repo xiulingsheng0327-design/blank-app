@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💕 AI聊天 · 离线版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #e1e9f0 0%, #c8d3e0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        .qq-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 700px;
+            background-color: #edeef0;
+            border-radius: 16px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+            display: flex;
+            overflow: hidden;
+        }
+        .left-panel {
+            width: 280px;
+            background-color: #e6e9ee;
+            border-right: 1px solid #bcc2cc;
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-card {
+            padding: 20px 16px;
+            background: #dbe0e6;
+            border-bottom: 1px solid #b3bac5;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+        }
+        .my-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #12b7f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .my-info h3 {
+            font-size: 1.1rem;
+            color: #1f2a3a;
+        }
+        .my-info p {
+            font-size: 0.75rem;
+            color: #4e5b6e;
+            margin-top: 4px;
+        }
+        .friend-header {
+            padding: 12px 16px 6px;
+            display: flex;
+            justify-content: space-between;
+            color: #2c3a4f;
+            font-weight: 600;
+        }
+        .friend-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 8px 8px 8px;
+        }
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+        .friend-item:hover {
+            background: #cdd5e0;
+        }
+        .friend-item.active {
+            background: #c0c9d6;
+        }
+        .friend-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #1e74fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        .friend-info {
+            flex: 1;
+        }
+        .friend-name {
+            font-weight: 600;
+            color: #1e2b3c;
+        }
+        .add-friend-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            color: #2c577a;
+            gap: 12px;
+            border-radius: 10px;
+            margin-top: 8px;
+            border: 1px dashed #8f9fb1;
+            cursor: pointer;
+        }
+        .chat-panel {
+            flex: 1;
+            background-color: #f5f7fa;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid #d0d7e3;
+            background: #eef2f6;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-header-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #1e74fd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .message-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f0f4f9;
+        }
+        .message {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 15px;
+        }
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        .message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #999;
+            margin: 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .message-bubble {
+            max-width: 60%;
+            padding: 10px 16px;
+            border-radius: 18px;
+            background: white;
+            word-break: break-word;
+        }
+        .message.user .message-bubble {
+            background: #d1e7ff;
+            border-bottom-right-radius: 4px;
+        }
+        .message.assistant .message-bubble {
+            background: white;
+            border-bottom-left-radius: 4px;
+        }
+        .input-area {
+            padding: 18px 20px;
+            background: #eef2f6;
+            border-top: 1px solid #cfd8e5;
+            display: flex;
+            gap: 12px;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 30px;
+            background: white;
+            outline: none;
+        }
+        .input-area button {
+            background: #1e74fd;
+            border: none;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="qq-container">
+    <!-- 左侧面板 -->
+    <div class="left-panel">
+        <div class="profile-card" id="editMyProfileBtn">
+            <div class="my-avatar" id="myAvatar">我</div>
+            <div class="my-info">
+                <h3 id="myNickname">我</h3>
+                <p>点击修改资料</p>
+            </div>
+        </div>
+        <div class="friend-header">
+            <span>AI 好友</span>
+        </div>
+        <div class="friend-list" id="friendListContainer"></div>
+    </div>
+
+    <!-- 右侧聊天区 -->
+    <div class="chat-panel">
+        <div class="chat-header" id="chatHeader">
+            <div class="chat-header-avatar" id="currentFriendAvatar">AI</div>
+            <h2 id="currentFriendName">请选择好友</h2>
+        </div>
+        <div class="message-area" id="messageArea"></div>
+        <div class="input-area">
+            <input type="text" placeholder="给AI发消息..." id="messageInput">
+            <button id="sendBtn">📤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 默认数据
+        let myProfile = {
+            name: '我',
+            avatar: '我'
+        };
+        
+        let friends = [
+            {
+                id: 'friend1',
+                name: '小深',
+                avatar: '小',
+                messages: []
+            },
+            {
+                id: 'friend2',
+                name: 'DS助手',
+                avatar: 'D',
+                messages: []
+            }
+        ];
+        
+        let currentFriendId = 'friend1';
+        
+        // 保存数据
+        function saveAll() {
+            localStorage.setItem('myProfile', JSON.stringify(myProfile));
+            localStorage.setItem('friends', JSON.stringify(friends));
+        }
+        
+        // 加载数据
+        function loadAll() {
+            const savedProfile = localStorage.getItem('myProfile');
+            if (savedProfile) {
+                try { myProfile = JSON.parse(savedProfile); } catch(e){}
+            }
+            const savedFriends = localStorage.getItem('friends');
+            if (savedFriends) {
+                try { 
+                    friends = JSON.parse(savedFriends);
+                    friends = friends.map(f => ({ ...f, messages: f.messages || [] }));
+                } catch(e){}
+            }
+        }
+        
+        loadAll();
+        
+        // 渲染好友列表
+        function renderFriendList() {
+            const container = document.getElementById('friendListContainer');
+            let html = '';
+            friends.forEach(friend => {
+                const activeClass = (currentFriendId === friend.id) ? 'active' : '';
+                html += `
+                    <div class="friend-item ${activeClass}" data-friend-id="${friend.id}">
+                        <div class="friend-avatar">${friend.avatar}</div>
+                        <div class="friend-info">
+                            <div class="friend-name">${friend.name}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `<div class="add-friend-item" id="addFriendBtn">
+                        <span>➕ 添加新好友</span>
+                    </div>`;
+            container.innerHTML = html;
+            
+            // 绑定点击事件
+            document.querySelectorAll('.friend-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    currentFriendId = item.dataset.friendId;
+                    renderAll();
+                });
+            });
+            
+            document.getElementById('addFriendBtn').addEventListener('click', () => {
+                const name = prompt('输入好友名字：');
+                if (name) {
+                    friends.push({
+                        id: 'friend_' + Date.now(),
+                        name: name,
+                        avatar: name[0] || '?',
+                        messages: []
+                    });
+                    saveAll();
+                    renderFriendList();
+                }
+            });
+        }
+        
+        // 渲染聊天区域
+        function renderChat() {
+            const headerName = document.getElementById('currentFriendName');
+            const headerAvatar = document.getElementById('currentFriendAvatar');
+            const messageArea = document.getElementById('messageArea');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            const friend = friends.find(f => f.id === currentFriendId);
+            if (!friend) {
+                headerName.innerText = '请选择好友';
+                headerAvatar.innerText = '?';
+                messageArea.innerHTML = '<div style="text-align:center; color:#999; margin-top:40px;">👈 选择一个好友开始聊天</div>';
+                sendBtn.disabled = true;
+                return;
+            }
+            
+            headerName.innerText = friend.name;
+            headerAvatar.innerText = friend.avatar;
+            sendBtn.disabled = false;
+            
+            if (!friend.messages || friend.messages.length === 0) {
+                messageArea.innerHTML = '<div style="text-align:center; color:#aaa; margin-top:20px;">✨ 开始聊天吧</div>';
+                return;
+            }
+            
+            let html = '';
+            friend.messages.forEach(msg => {
+                html += `
+                    <div class="message ${msg.role}">
+                        <div class="message-avatar">${msg.role === 'user' ? myProfile.avatar : friend.avatar}</div>
+                        <div class="message-bubble">${msg.content}</div>
+                    </div>
+                `;
+            });
+            messageArea.innerHTML = html;
+            messageArea.scrollTop = messageArea.scrollHeight;
+        }
+        
+        // 修改个人资料
+        document.getElementById('editMyProfileBtn').addEventListener('click', () => {
+            const name = prompt('输入你的昵称：', myProfile.name);
+            if (name) {
+                myProfile.name = name;
+                myProfile.avatar = name[0] || '我';
+                saveAll();
+                document.getElementById('myNickname').innerText = myProfile.name;
+                document.getElementById('myAvatar').innerText = myProfile.avatar;
+            }
+        });
+        
+        // 发送消息
+        document.getElementById('sendBtn').addEventListener('click', () => {
+            const input = document.getElementById('messageInput');
+            const msg = input.value.trim();
+            if (!msg || !currentFriendId) return;
+            
+            const friend = friends.find(f => f.id === currentFriendId);
+            if (!friend) return;
+            
+            // 添加用户消息
+            friend.messages.push({ role: 'user', content: msg });
+            input.value = '';
+            
+            // 模拟AI回复
+            setTimeout(() => {
+                const replies = ['真的吗？', '然后呢？', '哈哈', '我也觉得', '✨'];
+                const reply = replies[Math.floor(Math.random() * replies.length)];
+                friend.messages.push({ role: 'assistant', content: reply });
+                saveAll();
+                renderChat();
+            }, 500);
+            
+            saveAll();
+            renderChat();
+        });
+        
+        function renderAll() {
+            document.getElementById('myNickname').innerText = myProfile.name;
+            document.getElementById('myAvatar').innerText = myProfile.avatar;
+            renderFriendList();
+            renderChat();
+        }
+        
+        renderAll();
+    })();
+</script>
+</body>
+</html>
